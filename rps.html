@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Rock Paper Scissors</title>
+    <style>
+      .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 50%;
+  margin-bottom: 1rem;
+}
+
+.scoreboard span {
+  font-size: 2rem;
+}
+
+.scoreboard span:first-child {
+  margin-right: 1rem;
+}
+
+.scoreboard span:last-child {
+  margin-left: 1rem;
+}
+
+.choices {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 50%;
+  margin-bottom: 1rem;
+}
+
+.user-choice,
+.computer-choice {
+  width: 30%;
+  height: 5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.user-choice:hover {
+  background-color: rgba(0, 255, 0, 0.2);
+}
+
+.computer-choice {
+  background-color: lightgray;
+  color: darkgray;
+}
+
+.computer-choice[data-ns-test="computer-choose"] {
+  font-size: 3rem;
+}
+
+.results {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.results[data-ns-test="round-result"] {
+  margin-bottom: 0.5rem;
+}
+
+button {
+  padding: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  background-color: dodgerblue;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: royalblue;
+}
+
+    </style>
+  </head>
+  <body>
+    <label for="game-number">Number of turns:</label>
+    <input type="number" id="game-number" data-ns-test="game-number">
+    
+    <button id="play-game" data-ns-test="play-game">Play</button>
+    
+    <div>
+      <h2>You</h2>
+      <button class="user-choice" data-ns-test="rock">Rock</button>
+      <button class="user-choice" data-ns-test="paper">Paper</button>
+      <button class="user-choice" data-ns-test="scissors">Scissors</button>
+    </div>
+    
+    <div>
+      <h2>Computer</h2>
+      <p data-ns-test="computer-choose"></p>
+    </div>
+    
+    <div>
+      <h2>Round Result</h2>
+      <p data-ns-test="round-result"></p>
+    </div>
+    
+    <div>
+      <h2>Game Result</h2>
+      <p data-ns-test="game-result"></p>
+    </div>
+    
+    <div>
+      <h2>Scoreboard</h2>
+      <p data-ns-test="rounds-left">Rounds left: 0</p>
+      <p data-ns-test="user-points">Your points: 0</p>
+      <p data-ns-test="computer-points">Computer points: 0</p>
+    </div>
+    
+    <script>
+      // Define the possible choices for the game
+      const choices = ["ROCK", "PAPER", "SCISSORS"];
+      
+      // Define the initial state of the game
+      let roundsLeft = 0;
+      let userPoints = 0;
+      let computerPoints = 0;
+      let gameResult = null;
+      let currentRound = 1;
+      
+      // Define a function to update the scoreboard
+      function updateScoreboard() {
+        const roundsLeftElement = document.querySelector('[data-ns-test="rounds-left"]');
+        const userPointsElement = document.querySelector('[data-ns-test="user-points"]');
+        const computerPointsElement = document.querySelector('[data-ns-test="computer-points"]');
+        
+        roundsLeftElement.textContent = `Rounds left: ${roundsLeft}`;
+        userPointsElement.textContent = `Your points: ${userPoints}`;
+        computerPointsElement.textContent = `Computer points: ${computerPoints}`;
+      }
+      
+      // Define a function to update the game result
+      function updateGameResult() {
+        const gameResultElement = document.querySelector('[data-ns-test="game-result"]');
+        
+        if (userPoints > computerPoints) {
+          gameResult = "WON";
+        } else if (userPoints < computerPoints) {
+          gameResult = "LOSE";
+        } else {
+          gameResult = "TIE";
+        }
+        
+        gameResultElement.textContent = `Game result: ${gameResult}`;
+}
+  // Define a function to simulate the computer's choice
+  function computerChoose() {
+    return Math.floor(Math.random() * 3);
+  }
+  
+  // Define a function to handle a round of the game
+  function playRound(userChoice) {
+    const computerChoice = computerChoose();
+    const computerChoiceElement = document.querySelector('[data-ns-test="computer-choose"]');
+    const roundResultElement = document.querySelector('[data-ns-test="round-result"]');
+    
+    // Update the computer's choice element
+    computerChoiceElement.textContent = choices[computerChoice];
+    
+    // Determine the result of the round
+    let roundResult;
+    if (userChoice === computerChoice) {
+      roundResult = "TIE";
+    } else if (
+      (userChoice === 0 && computerChoice === 2) || (userChoice === 1 && computerChoice === 0) ||(userChoice === 2 && computerChoice === 1)
+      
+     
+    ) {
+      roundResult = "WON";
+      userPoints++;
+    } else {
+      roundResult = "LOSE";
+      computerPoints++;
+    }
+    
+    // Update the round result element
+    roundResultElement.textContent = `You ${roundResult.toLowerCase()}!`;
+    
+    // Update the scoreboard and game result
+    roundsLeft--;
+    updateScoreboard();
+    updateGameResult();
+  }
+  
+  // Get the game number and user choice elements
+  const gameNumberElement = document.querySelector('#game-number');
+  const userChoiceElements = document.querySelectorAll('.user-choice');
+  
+  // Add an event listener to the play button
+  document.querySelector('#play-game').addEventListener('click', function() {
+    // Get the number of rounds from the input
+    roundsLeft = parseInt(gameNumberElement.value);
+    
+    // Reset the scoreboard and game result
+    userPoints = 0;
+    computerPoints = 0;
+    gameResult = null;
+    currentRound = 1;
+    updateScoreboard();
+    updateGameResult();
+    
+    // Add event listeners to the user choice elements
+    userChoiceElements.forEach(function(element, index) {
+      element.addEventListener('click', function() {
+        playRound(index);
+        
+        // Check if the game is over
+        if (roundsLeft === 0) {
+          alert(`Game over! You ${gameResult.toLowerCase()}!`);
+        } else {
+          currentRound++;
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>
